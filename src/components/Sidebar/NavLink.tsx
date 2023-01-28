@@ -1,19 +1,27 @@
-import { Icon, Text, Link, LinkProps as ChakraLinkProps } from '@chakra-ui/react';
-import { ElementType } from 'react'
-import { RiDashboardLine } from 'react-icons/ri';
+import {
+  Icon,
+  Text,
+  Link as ChakraLink,
+  LinkProps as ChakraLinkProps,
+} from "@chakra-ui/react";
+import Link from "next/link";
+import { ElementType } from "react";
 
 interface NavLinkProps extends ChakraLinkProps {
   icon: ElementType;
   children: string;
+  href: string;
 }
 
-export function NavLink({ icon, children, ...rest }: NavLinkProps) {
+export function NavLink({ icon, children, href, ...rest }: NavLinkProps) {
   return (
-    <Link display="flex" alignItems="center" {...rest}>
-    <Icon as={icon} fontSize="28" />
-    <Text ml="4" fontWeight="medium">
-      {children}
-    </Text>
-  </Link>
-  )
+    <Link href={href} passHref>
+      <ChakraLink display="flex" alignItems="center" {...rest}>
+        <Icon as={icon} fontSize="28" />
+        <Text ml="4" fontWeight="medium">
+          {children}
+        </Text>
+      </ChakraLink>
+    </Link>
+  );
 }
