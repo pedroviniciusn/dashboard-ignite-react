@@ -49,6 +49,8 @@ export default function ListUsers() {
     });
 
     return users;
+  }, {
+    staleTime: 1000 * 5,
   });
 
   const [isWideVersion, setIsWideVersion] = useState<boolean | undefined>(
