@@ -10,7 +10,7 @@ interface ActiveLinkProps extends LinkProps {
 export function ActiveLink({children, shouldMatchExactHref, ...rest}: ActiveLinkProps) {
   const { asPath } = useRouter();
 
-    const [isActive, setIsActive] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
     if (shouldMatchExactHref && (asPath === rest.href || asPath === rest.as)) {
@@ -22,7 +22,7 @@ export function ActiveLink({children, shouldMatchExactHref, ...rest}: ActiveLink
       asPath.startsWith(String(rest.as)))) {
         setIsActive(true);
       }
-  }, [asPath])
+  }, [asPath, rest.as, rest.href, shouldMatchExactHref])
 
   return (
     <Link {...rest}>
