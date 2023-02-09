@@ -1,7 +1,7 @@
 import { Header } from "@/src/components/Header";
 import { Pagination } from "@/src/components/Pagination";
 import { Sidebar } from "@/src/components/Sidebar";
-import { api } from "@/src/services/api";
+import { useUsers } from "@/src/services/hooks/useUsers";
 import {
   Box,
   Button,
@@ -22,7 +22,6 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { RiAddLine, RiPencilLine } from "react-icons/ri";
-import { useQuery } from "react-query";
 
 interface IUserProps {
   id: string;
@@ -32,30 +31,7 @@ interface IUserProps {
 }
 
 export default function ListUsers() {
-  const { data, isLoading, isFetching, error } = useQuery(
-    "users",
-    async () => {
-      const { data } = await api.get("users");
-
-      const users = data.users.map((user: IUserProps) => {
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          createdAt: new Date(user.createdAt).toLocaleDateString("pt-BR", {
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-          }),
-        };
-      });
-
-      return users;
-    },
-    {
-      staleTime: 1000 * 5,
-    }
-  );
+  const { data, isLoading, isFetching, error } = useUsers();
 
   const [isWideVersion, setIsWideVersion] = useState<boolean | undefined>(
     false
@@ -137,7 +113,7 @@ export default function ListUsers() {
                   )}
                 </Thead>
                 <Tbody>
-                  {data.map((user: IUserProps) => {
+                  {data?.map((user: IUserProps) => {
                     return (
                       <Tr
                         display={["block", "block", "table-row"]}
