@@ -31,7 +31,8 @@ interface IUserProps {
 }
 
 export default function ListUsers() {
-  const { data, isLoading, isFetching, error } = useUsers();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isFetching, error } = useUsers(page);
 
   const [isWideVersion, setIsWideVersion] = useState<boolean | undefined>(
     false
@@ -113,7 +114,7 @@ export default function ListUsers() {
                   )}
                 </Thead>
                 <Tbody>
-                  {data?.map((user: IUserProps) => {
+                  {data?.users.map((user: IUserProps) => {
                     return (
                       <Tr
                         display={["block", "block", "table-row"]}
@@ -226,7 +227,11 @@ export default function ListUsers() {
                   })}
                 </Tbody>
               </Table>
-              <Pagination />
+              <Pagination 
+                totalCountOfRegisters={200}
+                currentPage={page}
+                onPageChange={setPage}
+              />
             </>
           )}
         </Box>
