@@ -31,27 +31,31 @@ interface IUserProps {
 }
 
 export default function ListUsers() {
-  const { data, isLoading, error } = useQuery("users", async () => {
-    const response = await fetch("http://localhost:3000/api/users");
-    const data = await response.json();
+  const { data, isLoading, isFetching, error } = useQuery(
+    "users",
+    async () => {
+      const response = await fetch("http://localhost:3000/api/users");
+      const data = await response.json();
 
-    const users = data.users.map((user: IUserProps) => {
-      return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        createdAt: new Date(user.createdAt).toLocaleDateString("pt-BR", {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-        }),
-      };
-    });
+      const users = data.users.map((user: IUserProps) => {
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          createdAt: new Date(user.createdAt).toLocaleDateString("pt-BR", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          }),
+        };
+      });
 
-    return users;
-  }, {
-    staleTime: 1000 * 5,
-  });
+      return users;
+    },
+    {
+      staleTime: 1000 * 5,
+    }
+  );
 
   const [isWideVersion, setIsWideVersion] = useState<boolean | undefined>(
     false
@@ -77,6 +81,9 @@ export default function ListUsers() {
           <Flex mb="8" justify="space-between" align="center">
             <Heading size="lg" fontWeight="normal">
               Usuários
+              {!isLoading && isFetching && (
+                <Spinner size="sm" color="gray.500" ml={4} />
+              )}
             </Heading>
             <Link href="/users/create" passHref>
               <Button
