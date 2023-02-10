@@ -2,7 +2,7 @@ import { Header } from "@/src/components/Header";
 import { Pagination } from "@/src/components/Pagination";
 import { Sidebar } from "@/src/components/Sidebar";
 import { api } from "@/src/services/api";
-import { useUsers } from "@/src/services/hooks/useUsers";
+import { getUsers, useUsers } from "@/src/services/hooks/useUsers";
 import { queryClient } from "@/src/services/queryClient";
 import {
   Box,
@@ -22,6 +22,7 @@ import {
   useBreakpointValue,
   Link,
 } from "@chakra-ui/react";
+import { GetServerSideProps } from 'next';
 import NextLink from "next/link";
 import { useEffect, useState } from "react";
 import { RiAddLine, RiPencilLine } from "react-icons/ri";
@@ -33,9 +34,11 @@ interface IUserProps {
   createdAt: string;
 }
 
-export default function ListUsers() {
+export default function ListUsers({users}: any) {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isFetching, error } = useUsers(page);
+  const { data, isLoading, isFetching, error } = useUsers(page, {
+    initialData: users
+  });
 
   const [isWideVersion, setIsWideVersion] = useState<boolean | undefined>(
     false
@@ -260,4 +263,14 @@ export default function ListUsers() {
       </Flex>
     </Box>
   );
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const { users, totalCount } = await getUsers(1);
+
+  return {
+    props: {
+      users,
+    }
+  }
 }
