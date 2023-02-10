@@ -15,6 +15,10 @@ import Link from "next/link";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useMutation } from "react-query";
+import { api } from "@/src/services/api";
+import { queryClient } from "@/src/services/queryClient";
+import { useRouter } from "next/router";
 
 type CreateUserFormData = {
   name?: string;
@@ -26,13 +30,36 @@ type CreateUserFormData = {
 const createUserFormSchema = yup.object().shape({
   name: yup.string().required("Nome obrigatório"),
   email: yup.string().required("E-mail obrigatório").email("E-mail inválido"),
-  password: yup.string().required("Senha obrigatória").min(8, "No mínimo 8 caracteres"),
+  password: yup
+    .string()
+    .required("Senha obrigatória")
+    .min(8, "No mínimo 8 caracteres"),
   password_confirmation: yup
     .string()
     .oneOf([null, yup.ref("password")], "As senhas precisam ser iguais"),
 });
 
 export default function CreateUser() {
+  const router = useRouter();
+
+  const createUser = useMutation(
+    async (user: CreateUserFormData) => {
+      const response = await api.post("users", {
+        user: {
+          ...user,
+          created_at: new Date(),
+        },
+      });
+
+      return response.data.user;
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("users");
+      },
+    }
+  );
+
   const {
     register,
     handleSubmit,
@@ -45,7 +72,8 @@ export default function CreateUser() {
     values,
     event
   ) => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await createUser.mutateAsync(values);
+    router.push("/users");
   };
 
   return (
@@ -71,12 +99,17 @@ export default function CreateUser() {
 
           <VStack spacing="8">
             <SimpleGrid minChildWidth="240px" spacing={["6", "8"]} w="100%">
-              <Input id="name" label="Nome completo" {...register("name")} error={errors.name}/>
+              <Input
+                id="name"
+                label="Nome completo"
+                {...register("name")}
+                error={errors.name}
+              />
               <Input
                 id="email"
                 type="email"
                 label="E-mail"
-                 error={errors.email} 
+                error={errors.email}
                 {...register("email")}
               />
             </SimpleGrid>
@@ -104,7 +137,9 @@ export default function CreateUser() {
                   Cancelar
                 </Button>
               </Link>
-              <Button type="submit" colorScheme="pink" isLoading={isSubmitting}>Salvar</Button>
+              <Button type="submit" colorScheme="pink" isLoading={isSubmitting}>
+                Salvar
+              </Button>
             </HStack>
           </Flex>
         </Box>
