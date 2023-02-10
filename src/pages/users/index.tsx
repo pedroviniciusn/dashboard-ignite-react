@@ -1,7 +1,9 @@
 import { Header } from "@/src/components/Header";
 import { Pagination } from "@/src/components/Pagination";
 import { Sidebar } from "@/src/components/Sidebar";
+import { api } from "@/src/services/api";
 import { useUsers } from "@/src/services/hooks/useUsers";
+import { queryClient } from "@/src/services/queryClient";
 import {
   Box,
   Button,
@@ -18,8 +20,9 @@ import {
   Thead,
   Tr,
   useBreakpointValue,
+  Link,
 } from "@chakra-ui/react";
-import Link from "next/link";
+import NextLink from "next/link";
 import { useEffect, useState } from "react";
 import { RiAddLine, RiPencilLine } from "react-icons/ri";
 
@@ -47,6 +50,20 @@ export default function ListUsers() {
     setIsWideVersion(isWideVersionChakra);
   }, [isWideVersionChakra]);
 
+  async function handlePrefetchUser(userId: string) {
+    await queryClient.prefetchQuery(
+      ["user", userId],
+      async () => {
+        const response = await api.get(`users/${userId}`);
+
+        return response.data;
+      },
+      {
+        staleTime: 1000 * 60 * 10,
+      }
+    );
+  }
+
   return (
     <Box>
       <Header />
@@ -62,7 +79,7 @@ export default function ListUsers() {
                 <Spinner size="sm" color="gray.500" ml={4} />
               )}
             </Heading>
-            <Link href="/users/create" passHref>
+            <NextLink href="/users/create" passHref>
               <Button
                 as="a"
                 size="sm"
@@ -75,7 +92,7 @@ export default function ListUsers() {
               >
                 Criar novo
               </Button>
-            </Link>
+            </NextLink>
           </Flex>
 
           {isLoading ? (
@@ -165,7 +182,12 @@ export default function ListUsers() {
                           data-label={!isWideVersion ? "Usuário:" : ""}
                         >
                           <Box>
-                            <Text fontWeight="bold">{user.name}</Text>
+                            <Link
+                              color="purple.500"
+                              onMouseEnter={() => handlePrefetchUser(user.id)}
+                            >
+                              <Text fontWeight="bold">{user.email}</Text>
+                            </Link>
                             <Text fontSize="sm" color="gray.300">
                               {user.email}
                             </Text>
@@ -227,7 +249,7 @@ export default function ListUsers() {
                   })}
                 </Tbody>
               </Table>
-              <Pagination 
+              <Pagination
                 totalCountOfRegisters={200}
                 currentPage={page}
                 onPageChange={setPage}
