@@ -16,7 +16,7 @@ export function SidebarDrawerProvider({ children }: SidebarDrawerProps) {
 
   useEffect(() => {
     disclosure.onClose();
-  }, [router.asPath]);
+  }, [disclosure, router.asPath]);
 
   return (
     <SidebarDrawerContext.Provider value={disclosure}>

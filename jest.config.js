@@ -7,4 +7,7 @@ module.exports = {
   transform: {
     "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest"
   },
+  collectCoverage: true,
+  collectCoverageFrom: ["src/**/*.tsx", "!src/**/*.spec.tsx"],
+  coverageReporters: ["json", "lcov"],
 };

@@ -1,10 +1,21 @@
-import { ActiveModelSerializer, createServer, Factory, Model, Response } from "miragejs";
+import {
+  ActiveModelSerializer,
+  createServer,
+  Factory,
+  Model,
+  Response,
+} from "miragejs";
 import { faker } from "@faker-js/faker";
 
 type User = {
   name: string;
   email: string;
   created_at: string;
+};
+
+type Admin = {
+  email: string;
+  password: string;
 };
 
 export function makeServer() {
@@ -15,6 +26,7 @@ export function makeServer() {
 
     models: {
       user: Model.extend<Partial<User>>({}),
+      admin: Model.extend<Partial<Admin>>({}),
     },
 
     factories: {
@@ -29,10 +41,21 @@ export function makeServer() {
           return faker.date.recent(10);
         },
       }),
+
+      admin: Factory.extend({
+        email() {
+          return "admin@email.com";
+        },
+
+        password() {
+          return "123456";
+        },
+      }),
     },
 
     seeds(server) {
       server.createList("user", 100);
+      server.createList("admin", 1);
     },
 
     routes() {
@@ -57,6 +80,22 @@ export function makeServer() {
 
       this.get("/users/:id");
       this.post("/users");
+
+      this.post("/admin", function (schema, request) {
+        const { email, password } = JSON.parse(
+          request.requestBody
+        ) as unknown as Admin;
+        const adminSchema = schema.all("admin");
+        const admin = adminSchema.models[0];
+
+        if (admin.attrs.email === email && admin.attrs.password === password) {
+          return new Response(200, {
+            token: "1b97e97c-3b58-409c-937b-65b0fac03eeb",
+          });
+        }
+
+        return new Response(400, { message: "User not found!" });
+      });
 
       this.namespace = "";
       this.passthrough();
