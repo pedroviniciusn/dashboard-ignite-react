@@ -1,8 +1,9 @@
-import { useQuery, UseQueryOptions } from "react-query";
 import { api } from "../../api";
 
 type PostAdminResponse = {
-  token: string;
+  response: {
+    token: string;
+  }
 };
 
 type SignInProps = {
